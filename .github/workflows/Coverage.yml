@@ -24,12 +24,28 @@ jobs:
           java-version: "21"
           cache: maven
 
-      - name: Run tests with JaCoCo
+      - name: Download JaCoCo agent
         run: >-
           ./mvnw --batch-mode --no-transfer-progress
-          org.jacoco:jacoco-maven-plugin:0.8.13:prepare-agent
-          verify
-          org.jacoco:jacoco-maven-plugin:0.8.13:report
+          org.apache.maven.plugins:maven-dependency-plugin:3.8.1:get
+          -Dartifact=org.jacoco:org.jacoco.agent:0.8.13:jar:runtime
+
+      - name: Run tests with JaCoCo
+        shell: bash
+        run: |
+          jacoco_agent="$HOME/.m2/repository/org/jacoco/org.jacoco.agent/0.8.13/org.jacoco.agent-0.8.13-runtime.jar"
+
+          ./mvnw --batch-mode --no-transfer-progress verify \
+            "-DargLine=-javaagent:${jacoco_agent}=destfile=${GITHUB_WORKSPACE}/jacoco.exec,append=true"
+
+          if [[ ! -s "${GITHUB_WORKSPACE}/jacoco.exec" ]]; then
+            echo "JaCoCo execution data was not generated." >&2
+            exit 1
+          fi
+
+          ./mvnw --batch-mode --no-transfer-progress \
+            org.jacoco:jacoco-maven-plugin:0.8.13:report \
+            "-Djacoco.dataFile=${GITHUB_WORKSPACE}/jacoco.exec"
 
       - name: Add coverage to job summary
         shell: bash
@@ -38,6 +54,7 @@ jobs:
 
           if [[ -z "$reports" ]]; then
             echo "No JaCoCo reports were generated." >&2
+            find . -name 'jacoco*' -print >&2
             exit 1
           fi
 
