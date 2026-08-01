@@ -1,10 +1,7 @@
-name: Test Coverage
+name: Test Coverage (manual)
 
 on:
-  pull_request:
-    branches: [develop, main, release]
-  push:
-    branches: [develop, main, release]
+  workflow_dispatch:
 
 permissions:
   contents: read
