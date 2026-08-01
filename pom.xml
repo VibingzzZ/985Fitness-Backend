@@ -79,7 +79,10 @@
                 <version>2.43.0</version>
                 <configuration>
                     <java>
-                        <googleJavaFormat/>
+                        <eclipse>
+                            <version>4.27</version>
+                            <file>${maven.multiModuleProjectDirectory}/tools/alibaba-eclipse-formatter.xml</file>
+                        </eclipse>
                     </java>
                 </configuration>
                 <executions>

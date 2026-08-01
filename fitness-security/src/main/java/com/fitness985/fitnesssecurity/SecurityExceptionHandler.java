@@ -11,32 +11,21 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SecurityExceptionHandler
-        implements AuthenticationEntryPoint, AccessDeniedHandler {
+public class SecurityExceptionHandler implements AuthenticationEntryPoint, AccessDeniedHandler {
 
     @Override
     public void commence(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            AuthenticationException exception
-    ) throws IOException, ServletException {
+            HttpServletRequest request, HttpServletResponse response, AuthenticationException exception)
+            throws IOException, ServletException {
 
-        response.sendError(
-                HttpServletResponse.SC_UNAUTHORIZED,
-                "未登录或登录已过期"
-        );
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "未登录或登录已过期");
     }
 
     @Override
     public void handle(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            AccessDeniedException exception
-    ) throws IOException, ServletException {
+            HttpServletRequest request, HttpServletResponse response, AccessDeniedException exception)
+            throws IOException, ServletException {
 
-        response.sendError(
-                HttpServletResponse.SC_FORBIDDEN,
-                "没有访问权限"
-        );
+        response.sendError(HttpServletResponse.SC_FORBIDDEN, "没有访问权限");
     }
 }

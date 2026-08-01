@@ -12,14 +12,11 @@ public class ClientController {
 
     /**
      * 获取用户信息
-     * @return
+     * @return  UserInfoResp 用户信息
      */
     @GetMapping("profile")
-    public Result<UserInfoResp> GetUserInfo(){
-
+    public Result<UserInfoResp> GetUserInfo() {
+        return null;
     }
-
-
-
 
 }
