@@ -54,6 +54,11 @@
             <groupId>com.fitness985</groupId>
             <artifactId>fitness-user</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.fitness985</groupId>
+            <artifactId>fitness-security</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 
         <!-- H2 测试数据库 -->
         <dependency>
