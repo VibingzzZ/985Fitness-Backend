@@ -19,6 +19,12 @@
 
 
     <dependencies>
+        <!--引入common依赖-->
+        <dependency>
+            <groupId>com.fitness985</groupId>
+            <artifactId>fitness-common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!-- Controller -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
