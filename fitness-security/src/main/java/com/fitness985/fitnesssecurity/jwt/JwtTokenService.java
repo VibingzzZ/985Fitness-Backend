@@ -36,7 +36,14 @@ public class JwtTokenService {
      */
     public JwtTokenService(JwtProperties properties) {
         this.properties = properties;
-        byte[] keyBytes = Decoders.BASE64.decode(properties.secret().replace('-', '+').replace('_', '/'));
+
+        String secret = properties.secret();
+        if (secret == null || secret.isBlank()) {
+            throw new IllegalStateException(
+                    "JWT密钥未配置，请设置环境变量 JWT_SECRET 或 security.jwt.secret");
+        }
+
+        byte[] keyBytes = Decoders.BASE64.decode(secret.replace('-', '+').replace('_', '/'));
 
         this.signingKey = Keys.hmacShaKeyFor(keyBytes);
     }
