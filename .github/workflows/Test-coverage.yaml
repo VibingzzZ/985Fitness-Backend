@@ -1,0 +1,67 @@
+name: Test Coverage
+
+on:
+  pull_request:
+    branches: [develop, main, release]
+  push:
+    branches: [develop, main, release]
+
+permissions:
+  contents: read
+
+jobs:
+  coverage:
+    name: JaCoCo report
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Run tests with JaCoCo
+        run: >-
+          ./mvnw --batch-mode --no-transfer-progress
+          org.jacoco:jacoco-maven-plugin:0.8.13:prepare-agent
+          verify
+          org.jacoco:jacoco-maven-plugin:0.8.13:report
+
+      - name: Add coverage to job summary
+        shell: bash
+        run: |
+          reports=$(find . -path '*/target/site/jacoco/jacoco.csv' -type f)
+
+          if [[ -z "$reports" ]]; then
+            echo "No JaCoCo reports were generated." >&2
+            exit 1
+          fi
+
+          awk -F, '
+            FNR > 1 {
+              missed += $8
+              covered += $9
+            }
+            END {
+              total = missed + covered
+              percent = total == 0 ? 0 : covered * 100 / total
+              printf "## Test coverage\n\n"
+              printf "| Metric | Result |\n"
+              printf "| --- | ---: |\n"
+              printf "| Line coverage | %.2f%% |\n", percent
+              printf "| Covered lines | %d |\n", covered
+              printf "| Total lines | %d |\n", total
+            }
+          ' $reports >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload JaCoCo reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-reports
+          path: '**/target/site/jacoco/'
+          if-no-files-found: error
+          retention-days: 14
