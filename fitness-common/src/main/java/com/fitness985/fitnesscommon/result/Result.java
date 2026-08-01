@@ -1,19 +1,19 @@
 package com.fitness985.fitnesscommon.result;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 /**
  * 后端统一返回结果
+ *
  * @param <T>
  */
 @Data
 public class Result<T> implements Serializable {
 
-    private Integer code;                   //编码
-    private String msg;                     //错误信息
-    private T data;                             //数据
+    private Integer code; // 编码
+    private String msg; // 错误信息
+    private T data; // 数据
 
     public static <T> Result<T> success() {
         Result<T> result = new Result<T>();
@@ -34,5 +34,4 @@ public class Result<T> implements Serializable {
         result.code = 0;
         return result;
     }
-
 }

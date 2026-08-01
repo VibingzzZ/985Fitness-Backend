@@ -7,5 +7,4 @@ class FitnessSecurityApplicationTests {
     @Test
     void contextLoads() {
     }
-
 }

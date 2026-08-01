@@ -16,11 +16,7 @@ import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
 import org.springframework.stereotype.Service;
 
-/**
- *      生成Token
- *     验签
- *     解析Claims
- **/
+/** 生成Token 验签 解析Claims */
 @Service
 public class JwtTokenService {
     private static final String CLAIM_USERNAME = "username";
@@ -35,83 +31,69 @@ public class JwtTokenService {
 
     /**
      * 构造函数
+     *
      * @param properties 配置
      */
-    public JwtTokenService(JwtProperties properties){
-        this.properties=properties;
-        byte[] keyBytes = Decoders.BASE64.decode(
-                properties.secret().replace('-', '+').replace('_', '/'));
+    public JwtTokenService(JwtProperties properties) {
+        this.properties = properties;
+        byte[] keyBytes = Decoders.BASE64.decode(properties.secret().replace('-', '+').replace('_', '/'));
 
-        this.signingKey= Keys.hmacShaKeyFor(keyBytes);
+        this.signingKey = Keys.hmacShaKeyFor(keyBytes);
     }
+
     /**
      * 创建AcessToken
+     *
      * @param principal 登录用户信息
      * @return 访问令牌
      */
     public String createAccessToken(LoginPrincipal principal) {
-        return createToken(
-                principal,
-                ACCESS_TOKEN,
-                properties.accessTokenExpiration()
-        );
+        return createToken(principal, ACCESS_TOKEN, properties.accessTokenExpiration());
     }
 
     /**
      * 创建RefreshToken
+     *
      * @param principal 登录用户信息
      * @return 刷新令牌
      */
     public String createRefreshToken(LoginPrincipal principal) {
-        return createToken(
-                principal,
-                REFRESH_TOKEN,
-                properties.refreshTokenExpiration()
-        );
+        return createToken(principal, REFRESH_TOKEN, properties.refreshTokenExpiration());
     }
 
     /**
      * 解析令牌获取用户信息
+     *
      * @param token 令牌
      * @return 用户信息
      */
     public LoginPrincipal parseAccessToken(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(signingKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        Claims claims = Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token).getPayload();
         checkTokenType(claims, ACCESS_TOKEN);
         return toPrincipal(claims);
     }
 
-
     /**
      * 解析令牌获取用户信息
+     *
      * @param token 令牌
      * @return 用户信息
      */
     public LoginPrincipal parseRefreshToken(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(signingKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        Claims claims = Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token).getPayload();
         checkTokenType(claims, REFRESH_TOKEN);
         return toPrincipal(claims);
     }
 
     /**
      * 创建令牌
+     *
      * @param principal 登录用户信息
      * @param tokenType 令牌类型
      * @param expiration 过期时间
      * @return 令牌
      */
-    private String createToken(
-            LoginPrincipal principal,
-            String tokenType,
-            Duration expiration) {
+    private String createToken(LoginPrincipal principal, String tokenType, Duration expiration) {
 
         Instant now = Instant.now();
 
@@ -126,9 +108,9 @@ public class JwtTokenService {
                 .compact();
     }
 
-
     /**
      * 转换为用户信息
+     *
      * @param claims 令牌信息
      * @return 用户信息
      */
@@ -144,6 +126,7 @@ public class JwtTokenService {
 
     /**
      * 校验令牌类型
+     *
      * @param claims 令牌信息
      * @param expectedType 令牌类型
      */

@@ -25,45 +25,43 @@ public class SecurityConfig {
 
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthenticationFilter,
-            SecurityExceptionHandler securityExceptionHandler
-    ) {
+            SecurityExceptionHandler securityExceptionHandler) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.securityExceptionHandler = securityExceptionHandler;
     }
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http)
-            throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        return http
-                .csrf(AbstractHttpConfigurer::disable)
+        return http.csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(
-                                SessionCreationPolicy.STATELESS
-                        ))
-                .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(securityExceptionHandler)
-                        .accessDeniedHandler(securityExceptionHandler))
-                .authorizeHttpRequests(authorize -> authorize
-                        // 登录和刷新 token
-                        .requestMatchers("/api/v1/auth/**").permitAll()
+                .sessionManagement(
+                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(
+                        exception -> exception
+                                .authenticationEntryPoint(securityExceptionHandler)
+                                .accessDeniedHandler(securityExceptionHandler))
+                .authorizeHttpRequests(
+                        authorize -> authorize
+                                // 登录和刷新 token
+                                .requestMatchers("/api/v1/auth/**")
+                                .permitAll()
 
-                        // 管理员接口
-                        .requestMatchers("/api/v1/admin/**")
-                        .hasRole("ADMIN")
+                                // 管理员接口
+                                .requestMatchers("/api/v1/admin/**")
+                                .hasRole("ADMIN")
 
-                        // 其他接口要求登录
-                        .anyRequest().authenticated())
-                .addFilterBefore(
-                        jwtAuthenticationFilter,
-                        UsernamePasswordAuthenticationFilter.class)
+                                // 其他接口要求登录
+                                .anyRequest()
+                                .authenticated())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
     /**
      * 密码编码器
+     *
      * @return 密码编码器
      */
     @Bean
