@@ -24,6 +24,39 @@ hs_err_pid*
 replay_pid*
 
 .idea/
+*.iws
+*.iml
+*.ipr
 
 # Maven build output
 target/
+
+# Maven wrapper jar
+.mvn/wrapper/maven-wrapper.jar
+
+# Spring Boot scaffold
+HELP.md
+
+# 本地开发敏感配置
+**/application-local.yaml
+.env
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+
+### VS Code ###
+.vscode/
