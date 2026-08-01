@@ -13,6 +13,10 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
     encoding: UTF-8
-
+security:
+  jwt:
+    secret: ${JWT_SECRET}
+    access-token-expiration: 2h
+    refresh-token-expiration: 30d
 server:
   port: 8080

@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: fitness-security
+security:
+  jwt:
+    secret: ${JWT_SECRET}
+    access-token-expiration: 2h
+    refresh-token-expiration: 30d
