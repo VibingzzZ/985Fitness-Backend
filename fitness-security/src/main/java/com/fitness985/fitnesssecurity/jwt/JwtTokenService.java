@@ -68,6 +68,10 @@ public class JwtTokenService {
         return createToken(principal, REFRESH_TOKEN, properties.refreshTokenExpiration());
     }
 
+    public long getAccessTokenExpirationSeconds() {
+        return properties.accessTokenExpiration().toSeconds();
+    }
+
     /**
      * 解析令牌获取用户信息
      *

@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class BindPhoneResp {
-    private String PhoneMasked;
-    private String BoundedAt;
+    private String phoneMasked;
+    private String boundAt;
 }

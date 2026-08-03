@@ -10,13 +10,13 @@ import java.time.LocalDateTime;
 @Data
 public class AdminUserListResp {
 
-    private Long id;
+    private Long userId;
 
     private String nickname;
 
     private String avatar;
 
-    private String phone;
+    private String phoneMasked;
 
     private Integer gender;
 
