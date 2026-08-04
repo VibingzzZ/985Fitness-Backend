@@ -4,7 +4,7 @@ spring:
   application:
     name: 985Fitness-boot
   datasource:
-    url: jdbc:mysql://localhost:3306/985fitness
+    url: jdbc:mysql://localhost:3306/985fitness_db
     username: root
     # password → 在 application-local.yaml 中配置
     driver-class-name: com.mysql.cj.jdbc.Driver
