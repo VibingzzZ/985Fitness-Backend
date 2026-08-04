@@ -45,7 +45,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         authorize -> authorize
                                 // 登录和刷新 token
-                                .requestMatchers("/api/v1/auth/**")
+                                .requestMatchers(
+                                        "/api/v1/auth/**",
+                                        "/api/v1/client/auth/wechat-login",
+                                        "/api/v1/client/auth/login",
+                                        "/api/v1/client/auth/register",
+                                        "/api/v1/admin/auth/login",
+                                        "/api/v1/merchant/auth/wechat-login")
                                 .permitAll()
 
                                 // 管理员接口

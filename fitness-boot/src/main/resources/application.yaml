@@ -20,3 +20,7 @@ security:
     refresh-token-expiration: 30d
 server:
   port: 8080
+wechat:
+  mini-program:
+    app-id: ${WECHAT_APP_ID:}
+    secret: ${WECHAT_APP_SECRET:}

@@ -32,6 +32,11 @@ public class User {
     private String phone;
 
     /**
+     * BCrypt密码摘要（微信用户为空，临时密码登录方案）。
+     */
+    private String password;
+
+    /**
      * 0未知、1男、2女。
      */
     private Integer gender;

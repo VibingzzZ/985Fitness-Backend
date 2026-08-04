@@ -9,7 +9,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>fitness-security</artifactId>
-    <name>fitness-user</name>
+    <name>fitness-security</name>
     <dependencies>
         <!-- Spring Security -->
         <dependency>
