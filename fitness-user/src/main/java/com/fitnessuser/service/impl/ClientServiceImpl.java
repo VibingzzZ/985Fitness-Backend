@@ -3,6 +3,8 @@ package com.fitnessuser.service.impl;
 import com.fitness985.fitnesssecurity.LoginPrincipal;
 import com.fitness985.fitnesssecurity.jwt.JwtTokenService;
 import com.fitnessuser.dto.BindPhoneReq;
+import com.fitnessuser.dto.PasswordLoginReq;
+import com.fitnessuser.dto.PasswordRegisterReq;
 import com.fitnessuser.dto.UpdateUserProfileReq;
 import com.fitnessuser.dto.WechatLoginReq;
 import com.fitnessuser.entity.User;
@@ -17,6 +19,7 @@ import com.fitnessuser.wechat.WechatGateway;
 import com.fitnessuser.wechat.WechatSession;
 import java.time.LocalDateTime;
 import java.util.Set;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -26,14 +29,17 @@ public class ClientServiceImpl implements ClientService {
     private final ClientMapper clientMapper;
     private final WechatGateway wechatGateway;
     private final JwtTokenService jwtTokenService;
+    private final PasswordEncoder passwordEncoder;
 
     public ClientServiceImpl(
             ClientMapper clientMapper,
             WechatGateway wechatGateway,
-            JwtTokenService jwtTokenService) {
+            JwtTokenService jwtTokenService,
+            PasswordEncoder passwordEncoder) {
         this.clientMapper = clientMapper;
         this.wechatGateway = wechatGateway;
         this.jwtTokenService = jwtTokenService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -70,14 +76,50 @@ public class ClientServiceImpl implements ClientService {
             bindPhone(user.getId(), phoneRequest(request.getPhoneCode()));
             user = requireUser(user.getId());
         }
-        LoginPrincipal principal = new LoginPrincipal(user.getId(), user.getNickname(), Set.of("USER"));
-        return LoginResp.builder()
-                .accessToken(jwtTokenService.createAccessToken(principal))
-                .refreshToken(jwtTokenService.createRefreshToken(principal))
-                .tokenType("Bearer")
-                .expiresIn(jwtTokenService.getAccessTokenExpirationSeconds())
-                .user(toUserInfo(user))
-                .build();
+        return buildLoginResp(user);
+    }
+
+    @Override
+    @Transactional
+    public LoginResp passwordLogin(PasswordLoginReq request) {
+        User user = clientMapper.findByPhone(request.getPhone());
+        if (user == null) {
+            throw new UserBusinessException("手机号未注册");
+        }
+        ensureUsable(user);
+        if (!StringUtils.hasText(user.getPassword())) {
+            throw new UserBusinessException("该账号未设置密码，请使用微信登录");
+        }
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new UserBusinessException("密码错误");
+        }
+        user.setLastLoginTime(LocalDateTime.now());
+        clientMapper.updateById(user);
+        return buildLoginResp(user);
+    }
+
+    @Override
+    @Transactional
+    public LoginResp passwordRegister(PasswordRegisterReq request) {
+        if (clientMapper.countByPhone(request.getPhone()) > 0) {
+            throw new UserBusinessException("该手机号已注册");
+        }
+        LocalDateTime now = LocalDateTime.now();
+        User user = new User();
+        user.setPhone(request.getPhone());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setNickname(
+                StringUtils.hasText(request.getNickname())
+                        ? request.getNickname()
+                        : "用户" + request.getPhone().substring(request.getPhone().length() - 4));
+        user.setStatus(1);
+        user.setRegisterTime(now);
+        user.setLastLoginTime(now);
+        user.setCreateTime(now);
+        user.setUpdateTime(now);
+        user.setDeleted(0);
+        clientMapper.insert(user);
+        return buildLoginResp(user);
     }
 
     @Override
@@ -148,6 +190,17 @@ public class ClientServiceImpl implements ClientService {
         if (!Integer.valueOf(1).equals(user.getStatus())) {
             throw new UserBusinessException("用户账号不可用");
         }
+    }
+
+    private LoginResp buildLoginResp(User user) {
+        LoginPrincipal principal = new LoginPrincipal(user.getId(), user.getNickname(), Set.of("USER"));
+        return LoginResp.builder()
+                .accessToken(jwtTokenService.createAccessToken(principal))
+                .refreshToken(jwtTokenService.createRefreshToken(principal))
+                .tokenType("Bearer")
+                .expiresIn(jwtTokenService.getAccessTokenExpirationSeconds())
+                .user(toUserInfo(user))
+                .build();
     }
 
     private UserInfoResp toUserInfo(User user) {

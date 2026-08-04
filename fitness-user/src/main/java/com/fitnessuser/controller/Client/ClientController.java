@@ -3,6 +3,8 @@ package com.fitnessuser.controller.Client;
 import com.fitness985.fitnesscommon.result.Result;
 import com.fitness985.fitnesssecurity.SecurityUtils;
 import com.fitnessuser.dto.BindPhoneReq;
+import com.fitnessuser.dto.PasswordLoginReq;
+import com.fitnessuser.dto.PasswordRegisterReq;
 import com.fitnessuser.dto.UpdateUserProfileReq;
 import com.fitnessuser.dto.WechatLoginReq;
 import com.fitnessuser.service.ClientService;
@@ -55,15 +57,18 @@ public class ClientController {
     }
 
     /**
-     * 临时密码登录TODO:后续删除
-     * @param password
-     * @return
+     * 密码登录（MVP临时方案，微信小程序审核通过后删除）
      */
     @PostMapping("/auth/login")
-    public Result<Void> login(@Valid String password) {
-        if (password.equals("123456")) {
-            return Result.success();
-        }
-        return Result.error("密码错误");
+    public Result<LoginResp> passwordLogin(@Valid @RequestBody PasswordLoginReq request) {
+        return Result.success(clientService.passwordLogin(request));
+    }
+
+    /**
+     * 密码注册（MVP临时方案，微信小程序审核通过后删除）
+     */
+    @PostMapping("/auth/register")
+    public Result<LoginResp> passwordRegister(@Valid @RequestBody PasswordRegisterReq request) {
+        return Result.success(clientService.passwordRegister(request));
     }
 }

@@ -48,6 +48,8 @@ public class SecurityConfig {
                                 .requestMatchers(
                                         "/api/v1/auth/**",
                                         "/api/v1/client/auth/wechat-login",
+                                        "/api/v1/client/auth/login",
+                                        "/api/v1/client/auth/register",
                                         "/api/v1/admin/auth/login",
                                         "/api/v1/merchant/auth/wechat-login")
                                 .permitAll()

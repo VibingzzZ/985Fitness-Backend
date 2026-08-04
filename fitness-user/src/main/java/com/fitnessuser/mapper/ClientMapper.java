@@ -17,6 +17,9 @@ public interface ClientMapper extends BaseMapper<User> {
     @Select("SELECT COUNT(*) FROM t_985fitness_user WHERE phone = #{phone} AND deleted = 0")
     long countByPhone(String phone);
 
+    @Select("SELECT * FROM t_985fitness_user WHERE phone = #{phone} AND deleted = 0")
+    User findByPhone(String phone);
+
     @Select("""
             SELECT uc.id AS user_card_id, cp.name, uc.remain_times, uc.expire_time, uc.status
             FROM t_985fitness_user_card uc

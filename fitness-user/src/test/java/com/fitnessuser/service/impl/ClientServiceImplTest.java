@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 class ClientServiceImplTest {
@@ -35,12 +36,14 @@ class ClientServiceImplTest {
     private WechatGateway wechatGateway;
     @Mock
     private JwtTokenService jwtTokenService;
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     private ClientServiceImpl service;
 
     @BeforeEach
     void setUp() {
-        service = new ClientServiceImpl(clientMapper, wechatGateway, jwtTokenService);
+        service = new ClientServiceImpl(clientMapper, wechatGateway, jwtTokenService, passwordEncoder);
     }
 
     @Test
