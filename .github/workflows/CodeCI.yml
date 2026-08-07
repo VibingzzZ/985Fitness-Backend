@@ -2,9 +2,13 @@ name: Java CI
 
 on:
   pull_request:
-    branches: [develop, main, release]
+    branches: [develop, main]
   push:
-    branches: [develop, main, release]
+    branches: [develop, main]
+
+concurrency:
+  group: java-ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -13,6 +17,7 @@ jobs:
   verify:
     name: Maven verify
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v4
