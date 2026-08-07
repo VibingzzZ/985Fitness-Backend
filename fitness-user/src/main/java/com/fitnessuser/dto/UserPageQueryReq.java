@@ -2,6 +2,7 @@ package com.fitnessuser.dto;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -19,6 +20,9 @@ public class UserPageQueryReq {
     private String nickname;
 
     private String phone;
+
+    @JsonIgnore
+    private String phoneHash;
 
     private Integer status;
 

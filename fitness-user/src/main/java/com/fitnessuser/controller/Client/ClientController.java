@@ -3,12 +3,14 @@ package com.fitnessuser.controller.Client;
 import com.fitness985.fitnesscommon.result.Result;
 import com.fitness985.fitnesssecurity.SecurityUtils;
 import com.fitnessuser.dto.BindPhoneReq;
+import com.fitnessuser.dto.CancellationReq;
 import com.fitnessuser.dto.PasswordLoginReq;
 import com.fitnessuser.dto.PasswordRegisterReq;
 import com.fitnessuser.dto.UpdateUserProfileReq;
 import com.fitnessuser.dto.WechatLoginReq;
 import com.fitnessuser.service.ClientService;
 import com.fitnessuser.vo.BindPhoneResp;
+import com.fitnessuser.vo.CancellationResp;
 import com.fitnessuser.vo.LoginResp;
 import com.fitnessuser.vo.StoredValueBalanceResp;
 import com.fitnessuser.vo.UserInfoResp;
@@ -54,6 +56,13 @@ public class ClientController {
     @PostMapping("/phone")
     public Result<BindPhoneResp> bindPhone(@Valid @RequestBody BindPhoneReq request) {
         return Result.success(clientService.bindPhone(SecurityUtils.currentUserId(), request));
+    }
+
+    @PostMapping("/profile/cancellation")
+    public Result<CancellationResp> requestCancellation(
+            @Valid @RequestBody CancellationReq request) {
+        return Result.success(
+                clientService.requestCancellation(SecurityUtils.currentUserId(), request));
     }
 
     /**

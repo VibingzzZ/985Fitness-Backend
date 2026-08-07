@@ -24,15 +24,26 @@ public class UserManageController {
         this.userManageService = userManageService;
     }
 
+    /**
+     *  查询用户列表
+     * @param request 查询参数
+     * @return 用户列表
+     */
     @GetMapping
     public Result<PageResp<AdminUserListResp>> findUsers(@Valid UserPageQueryReq request) {
         return Result.success(userManageService.findUsers(request));
     }
 
+    /**
+     *  更新用户状态
+     * @param userId 用户ID
+     * @param request 更新参数
+     * @return 修改成功
+     */
     @PatchMapping("/{userId}/status")
-    public Result<Void> updateStatus(
+    public Result<String> updateStatus(
             @PathVariable Long userId, @Valid @RequestBody UpdateUserStatusReq request) {
         userManageService.updateStatus(userId, request);
-        return Result.success();
+        return Result.success("修改成功");
     }
 }

@@ -2,7 +2,9 @@ package com.fitnessuser.service.impl;
 
 import com.fitness985.fitnesssecurity.LoginPrincipal;
 import com.fitness985.fitnesssecurity.jwt.JwtTokenService;
+import com.fitnessuser.crypto.PhoneCryptoService;
 import com.fitnessuser.dto.BindPhoneReq;
+import com.fitnessuser.dto.CancellationReq;
 import com.fitnessuser.dto.PasswordLoginReq;
 import com.fitnessuser.dto.PasswordRegisterReq;
 import com.fitnessuser.dto.UpdateUserProfileReq;
@@ -12,6 +14,7 @@ import com.fitnessuser.exception.UserBusinessException;
 import com.fitnessuser.mapper.ClientMapper;
 import com.fitnessuser.service.ClientService;
 import com.fitnessuser.vo.BindPhoneResp;
+import com.fitnessuser.vo.CancellationResp;
 import com.fitnessuser.vo.LoginResp;
 import com.fitnessuser.vo.StoredValueBalanceResp;
 import com.fitnessuser.vo.UserInfoResp;
@@ -30,16 +33,19 @@ public class ClientServiceImpl implements ClientService {
     private final WechatGateway wechatGateway;
     private final JwtTokenService jwtTokenService;
     private final PasswordEncoder passwordEncoder;
+    private final PhoneCryptoService phoneCryptoService;
 
     public ClientServiceImpl(
             ClientMapper clientMapper,
             WechatGateway wechatGateway,
             JwtTokenService jwtTokenService,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            PhoneCryptoService phoneCryptoService) {
         this.clientMapper = clientMapper;
         this.wechatGateway = wechatGateway;
         this.jwtTokenService = jwtTokenService;
         this.passwordEncoder = passwordEncoder;
+        this.phoneCryptoService = phoneCryptoService;
     }
 
     @Override
@@ -82,7 +88,8 @@ public class ClientServiceImpl implements ClientService {
     @Override
     @Transactional
     public LoginResp passwordLogin(PasswordLoginReq request) {
-        User user = clientMapper.findByPhone(request.getPhone());
+        String phoneHash = phoneCryptoService.hash(request.getPhone());
+        User user = clientMapper.findByPhone(phoneHash, request.getPhone());
         if (user == null) {
             throw new UserBusinessException("手机号未注册");
         }
@@ -93,6 +100,7 @@ public class ClientServiceImpl implements ClientService {
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new UserBusinessException("密码错误");
         }
+        upgradeLegacyPhone(user, request.getPhone(), phoneHash);
         user.setLastLoginTime(LocalDateTime.now());
         clientMapper.updateById(user);
         return buildLoginResp(user);
@@ -101,12 +109,14 @@ public class ClientServiceImpl implements ClientService {
     @Override
     @Transactional
     public LoginResp passwordRegister(PasswordRegisterReq request) {
-        if (clientMapper.countByPhone(request.getPhone()) > 0) {
+        String phoneHash = phoneCryptoService.hash(request.getPhone());
+        if (clientMapper.countByPhone(phoneHash, request.getPhone()) > 0) {
             throw new UserBusinessException("该手机号已注册");
         }
         LocalDateTime now = LocalDateTime.now();
         User user = new User();
-        user.setPhone(request.getPhone());
+        user.setPhone(phoneCryptoService.encrypt(request.getPhone()));
+        user.setPhoneHash(phoneHash);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setNickname(
                 StringUtils.hasText(request.getNickname())
@@ -166,15 +176,44 @@ public class ClientServiceImpl implements ClientService {
     public BindPhoneResp bindPhone(Long userId, BindPhoneReq request) {
         User user = requireUser(userId);
         String phone = wechatGateway.exchangePhoneCode(request.getCode());
-        if (clientMapper.countByPhone(phone) > 0 && !phone.equals(user.getPhone())) {
+        String phoneHash = phoneCryptoService.hash(phone);
+        String currentPhone = phoneCryptoService.decrypt(user.getPhone());
+        if (clientMapper.countByPhone(phoneHash, phone) > 0 && !phone.equals(currentPhone)) {
             throw new UserBusinessException("该手机号已绑定其他账号");
         }
-        user.setPhone(phone);
+        user.setPhone(phoneCryptoService.encrypt(phone));
+        user.setPhoneHash(phoneHash);
         clientMapper.updateById(user);
         BindPhoneResp response = new BindPhoneResp();
         response.setPhoneMasked(maskPhone(phone));
         response.setBoundAt(LocalDateTime.now().toString());
         return response;
+    }
+
+    @Override
+    @Transactional
+    public CancellationResp requestCancellation(Long userId, CancellationReq request) {
+        User user = requireUser(userId);
+        if (clientMapper.countPendingOrders(userId) > 0) {
+            throw new UserBusinessException("存在待支付订单，暂时无法注销");
+        }
+        if (clientMapper.countPendingRefunds(userId) > 0) {
+            throw new UserBusinessException("存在处理中的退款，暂时无法注销");
+        }
+        LocalDateTime requestedAt = LocalDateTime.now();
+        LocalDateTime scheduledDeletionAt = requestedAt.plusDays(30);
+        user.setStatus(2);
+        user.setCancellationReason(request.getReason());
+        user.setCancellationRequestedAt(requestedAt);
+        user.setScheduledDeletionAt(scheduledDeletionAt);
+        clientMapper.updateById(user);
+        clientMapper.revokeFaces(userId);
+        return CancellationResp.builder()
+                .userId(userId)
+                .status("PENDING_CANCELLATION")
+                .requestedAt(requestedAt)
+                .scheduledDeletionAt(scheduledDeletionAt)
+                .build();
     }
 
     private User requireUser(Long userId) {
@@ -208,7 +247,7 @@ public class ClientServiceImpl implements ClientService {
                 .userId(user.getId())
                 .nickname(user.getNickname())
                 .avatar(user.getAvatar())
-                .phoneMasked(maskPhone(user.getPhone()))
+                .phoneMasked(maskPhone(phoneCryptoService.decrypt(user.getPhone())))
                 .gender(user.getGender())
                 .birthday(user.getBirthday())
                 .status(user.getStatus())
@@ -222,6 +261,13 @@ public class ClientServiceImpl implements ClientService {
         BindPhoneReq request = new BindPhoneReq();
         request.setCode(code);
         return request;
+    }
+
+    private void upgradeLegacyPhone(User user, String plainPhone, String phoneHash) {
+        if (!phoneCryptoService.isEncrypted(user.getPhone())) {
+            user.setPhone(phoneCryptoService.encrypt(plainPhone));
+            user.setPhoneHash(phoneHash);
+        }
     }
 
     public static String maskPhone(String phone) {
