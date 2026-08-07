@@ -31,16 +31,25 @@ public class ClientController {
         this.clientService = clientService;
     }
 
+    /**
+     * 微信登录
+     */
     @PostMapping("/auth/wechat-login")
     public Result<LoginResp> wechatLogin(@Valid @RequestBody WechatLoginReq request) {
         return Result.success(clientService.wechatLogin(request));
     }
 
+    /**
+     * 获取用户信息
+     */
     @GetMapping("/profile")
     public Result<UserInfoResp> getUserInfo() {
         return Result.success(clientService.getUserInfo(SecurityUtils.currentUserId()));
     }
 
+    /**
+     * 更新用户信息
+     */
     @PatchMapping("/profile")
     public Result<UserInfoResp> updateUserInfo(
             @Valid @RequestBody UpdateUserProfileReq request) {
@@ -48,16 +57,25 @@ public class ClientController {
                 clientService.updateUserInfo(SecurityUtils.currentUserId(), request));
     }
 
+    /**
+     * 获取储值余额
+     */
     @GetMapping({"/stored-value/balance", "/balance"})
     public Result<StoredValueBalanceResp> getUserBalance() {
         return Result.success(clientService.getUserBalance(SecurityUtils.currentUserId()));
     }
 
+    /**
+     * 绑定手机号
+     */
     @PostMapping("/phone")
     public Result<BindPhoneResp> bindPhone(@Valid @RequestBody BindPhoneReq request) {
         return Result.success(clientService.bindPhone(SecurityUtils.currentUserId(), request));
     }
 
+    /**
+     * 申请注销
+     */
     @PostMapping("/profile/cancellation")
     public Result<CancellationResp> requestCancellation(
             @Valid @RequestBody CancellationReq request) {
