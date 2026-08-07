@@ -49,6 +49,17 @@
             <artifactId>flyway-mysql</artifactId>
         </dependency>
 
+        <!-- MyBatis-Plus -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
         <!-- 引入业务模块 -->
         <dependency>
             <groupId>com.fitness985</groupId>
@@ -58,6 +69,16 @@
             <groupId>com.fitness985</groupId>
             <artifactId>fitness-security</artifactId>
             <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fitness985</groupId>
+            <artifactId>fitness-system</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fitness985</groupId>
+            <artifactId>fitness-store</artifactId>
         </dependency>
 
         <!-- H2 测试数据库 -->
