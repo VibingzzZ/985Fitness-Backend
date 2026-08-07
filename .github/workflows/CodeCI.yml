@@ -25,4 +25,6 @@ jobs:
           cache: maven
 
       - name: Verify dependencies, compile, format, and tests
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: ./mvnw --batch-mode --no-transfer-progress verify
