@@ -5,12 +5,13 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
 public class UserInfoResp {
 
-    private Long id;
+    private Long userId;
 
     private String nickname;
 
@@ -19,7 +20,7 @@ public class UserInfoResp {
     /**
      * 返回脱敏手机号，例如 138****1234。
      */
-    private String phone;
+    private String phoneMasked;
 
     private Integer gender;
 
@@ -28,4 +29,9 @@ public class UserInfoResp {
     private Integer status;
 
     private LocalDateTime registerTime;
+
+    private String faceStatus;
+
+    @Builder.Default
+    private List<ActiveCardResp> activeCards = List.of();
 }

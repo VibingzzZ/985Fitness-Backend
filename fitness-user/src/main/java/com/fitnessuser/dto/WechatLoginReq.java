@@ -14,4 +14,6 @@ public class WechatLoginReq {
     private String nickname;
 
     private String avatar;
+
+    private String phoneCode;
 }

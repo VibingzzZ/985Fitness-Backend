@@ -27,7 +27,7 @@ public class JwtTokenService {
     private static final String REFRESH_TOKEN = "refresh";
 
     private final JwtProperties properties;
-    private final SecretKey signingKey;
+    private static SecretKey signingKey;
 
     /**
      * 构造函数
@@ -68,13 +68,17 @@ public class JwtTokenService {
         return createToken(principal, REFRESH_TOKEN, properties.refreshTokenExpiration());
     }
 
+    public long getAccessTokenExpirationSeconds() {
+        return properties.accessTokenExpiration().toSeconds();
+    }
+
     /**
      * 解析令牌获取用户信息
      *
      * @param token 令牌
      * @return 用户信息
      */
-    public LoginPrincipal parseAccessToken(String token) {
+    public static LoginPrincipal parseAccessToken(String token) {
         Claims claims = Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token).getPayload();
         checkTokenType(claims, ACCESS_TOKEN);
         return toPrincipal(claims);
@@ -121,7 +125,7 @@ public class JwtTokenService {
      * @param claims 令牌信息
      * @return 用户信息
      */
-    private LoginPrincipal toPrincipal(Claims claims) {
+    private static LoginPrincipal toPrincipal(Claims claims) {
         Long userId = Long.valueOf(claims.getSubject());
         String username = claims.get(CLAIM_USERNAME, String.class);
         Object rawRoles = claims.get(CLAIM_ROLES);
@@ -137,7 +141,7 @@ public class JwtTokenService {
      * @param claims 令牌信息
      * @param expectedType 令牌类型
      */
-    private void checkTokenType(Claims claims, String expectedType) {
+    private static void checkTokenType(Claims claims, String expectedType) {
         String actualType = claims.get(CLAIM_TOKEN_TYPE, String.class);
 
         if (!Objects.equals(actualType, expectedType)) {

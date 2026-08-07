@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 public class UserPageQueryReq {
 
     @Min(1)
-    private Long pageNum = 1L;
+    private Long pageNo = 1L;
 
     @Min(1)
     @Max(100)
@@ -25,4 +25,8 @@ public class UserPageQueryReq {
     private LocalDateTime registerStartTime;
 
     private LocalDateTime registerEndTime;
+
+    public long offset() {
+        return (pageNo - 1) * pageSize;
+    }
 }
