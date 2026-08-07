@@ -2,15 +2,20 @@ name: Branch Policy
 
 on:
   pull_request:
-    branches: [main, release]
+    branches: [main]
 
 permissions:
   pull-requests: read
+
+concurrency:
+  group: branch-policy-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   validate-source:
     name: Validate source branch
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
       - name: Allow develop or hotfix branches only
@@ -21,6 +26,6 @@ jobs:
             exit 0
           fi
 
-          echo "Only develop or hotfix/* may target main or release."
+          echo "Only develop or hotfix/* may target main."
           echo "Current source branch: $HEAD_REF"
           exit 1
