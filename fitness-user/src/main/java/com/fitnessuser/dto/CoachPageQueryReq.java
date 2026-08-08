@@ -2,14 +2,10 @@ package com.fitnessuser.dto;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 @Data
-public class UserPageQueryReq {
-
+public class CoachPageQueryReq {
     @Min(1)
     private Long pageNo = 1L;
 
@@ -17,18 +13,9 @@ public class UserPageQueryReq {
     @Max(100)
     private Long pageSize = 20L;
 
-    private String nickname;
-
-    private String phone;
-
-    @JsonIgnore
-    private String phoneHash;
-
+    private Long storeId;
     private Integer status;
-
-    private LocalDateTime registerStartTime;
-
-    private LocalDateTime registerEndTime;
+    private String keyword;
 
     public long offset() {
         return (pageNo - 1) * pageSize;

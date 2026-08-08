@@ -6,7 +6,9 @@ import com.fitnessuser.vo.ActiveCardResp;
 import com.fitnessuser.vo.StoredValueBalanceResp;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 @Mapper
 public interface ClientMapper extends BaseMapper<User> {
@@ -14,11 +16,31 @@ public interface ClientMapper extends BaseMapper<User> {
     @Select("SELECT * FROM t_985fitness_user WHERE openid = #{openid} AND deleted = 0")
     User findByOpenid(String openid);
 
-    @Select("SELECT COUNT(*) FROM t_985fitness_user WHERE phone = #{phone} AND deleted = 0")
-    long countByPhone(String phone);
+    @Select("""
+            SELECT COUNT(*) FROM t_985fitness_user
+            WHERE deleted = 0
+              AND (phone_hash = #{phoneHash} OR (phone_hash IS NULL AND phone = #{plainPhone}))
+            """)
+    long countByPhone(
+            @Param("phoneHash") String phoneHash, @Param("plainPhone") String plainPhone);
 
-    @Select("SELECT * FROM t_985fitness_user WHERE phone = #{phone} AND deleted = 0")
-    User findByPhone(String phone);
+    @Select("""
+            SELECT * FROM t_985fitness_user
+            WHERE deleted = 0
+              AND (phone_hash = #{phoneHash} OR (phone_hash IS NULL AND phone = #{plainPhone}))
+            LIMIT 1
+            """)
+    User findByPhone(
+            @Param("phoneHash") String phoneHash, @Param("plainPhone") String plainPhone);
+
+    @Select("SELECT COUNT(*) FROM t_985fitness_order WHERE user_id = #{userId} AND status = 1")
+    long countPendingOrders(Long userId);
+
+    @Select("SELECT COUNT(*) FROM t_985fitness_refund_record WHERE user_id = #{userId} AND status = 1")
+    long countPendingRefunds(Long userId);
+
+    @Update("UPDATE t_985fitness_user_face SET status = 0 WHERE user_id = #{userId} AND status = 1")
+    int revokeFaces(Long userId);
 
     @Select("""
             SELECT uc.id AS user_card_id, cp.name, uc.remain_times, uc.expire_time, uc.status

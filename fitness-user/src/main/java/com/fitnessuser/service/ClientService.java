@@ -1,11 +1,13 @@
 package com.fitnessuser.service;
 
 import com.fitnessuser.dto.BindPhoneReq;
+import com.fitnessuser.dto.CancellationReq;
 import com.fitnessuser.dto.PasswordLoginReq;
 import com.fitnessuser.dto.PasswordRegisterReq;
 import com.fitnessuser.dto.UpdateUserProfileReq;
 import com.fitnessuser.dto.WechatLoginReq;
 import com.fitnessuser.vo.BindPhoneResp;
+import com.fitnessuser.vo.CancellationResp;
 import com.fitnessuser.vo.LoginResp;
 import com.fitnessuser.vo.StoredValueBalanceResp;
 import com.fitnessuser.vo.UserInfoResp;
@@ -24,4 +26,6 @@ public interface ClientService {
     StoredValueBalanceResp getUserBalance(Long userId);
 
     BindPhoneResp bindPhone(Long userId, BindPhoneReq request);
+
+    CancellationResp requestCancellation(Long userId, CancellationReq request);
 }

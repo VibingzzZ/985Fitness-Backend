@@ -18,6 +18,8 @@ security:
     secret: ${JWT_SECRET}
     access-token-expiration: 2h
     refresh-token-expiration: 30d
+  user-data:
+    phone-encryption-key: ${USER_PHONE_ENCRYPTION_KEY}
 server:
   port: 8080
 wechat:

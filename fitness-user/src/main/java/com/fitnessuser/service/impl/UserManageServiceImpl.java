@@ -1,5 +1,6 @@
 package com.fitnessuser.service.impl;
 
+import com.fitnessuser.crypto.PhoneCryptoService;
 import com.fitnessuser.dto.UpdateUserStatusReq;
 import com.fitnessuser.dto.UserPageQueryReq;
 import com.fitnessuser.entity.User;
@@ -17,14 +18,22 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserManageServiceImpl implements UserManageService {
     private final UserManageMapper userManageMapper;
     private final ClientMapper clientMapper;
+    private final PhoneCryptoService phoneCryptoService;
 
-    public UserManageServiceImpl(UserManageMapper userManageMapper, ClientMapper clientMapper) {
+    public UserManageServiceImpl(
+            UserManageMapper userManageMapper,
+            ClientMapper clientMapper,
+            PhoneCryptoService phoneCryptoService) {
         this.userManageMapper = userManageMapper;
         this.clientMapper = clientMapper;
+        this.phoneCryptoService = phoneCryptoService;
     }
 
     @Override
     public PageResp<AdminUserListResp> findUsers(UserPageQueryReq request) {
+        if (request.getPhone() != null && !request.getPhone().isBlank()) {
+            request.setPhoneHash(phoneCryptoService.hash(request.getPhone()));
+        }
         List<AdminUserListResp> list = userManageMapper.findPage(request).stream()
                 .map(this::toResponse)
                 .toList();
@@ -55,7 +64,8 @@ public class UserManageServiceImpl implements UserManageService {
         response.setUserId(user.getId());
         response.setNickname(user.getNickname());
         response.setAvatar(user.getAvatar());
-        response.setPhoneMasked(ClientServiceImpl.maskPhone(user.getPhone()));
+        response.setPhoneMasked(
+                ClientServiceImpl.maskPhone(phoneCryptoService.decrypt(user.getPhone())));
         response.setGender(user.getGender());
         response.setStatus(user.getStatus());
         response.setRegisterTime(user.getRegisterTime());

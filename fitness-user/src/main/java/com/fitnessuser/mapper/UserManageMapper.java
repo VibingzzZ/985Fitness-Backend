@@ -17,7 +17,7 @@ public interface UserManageMapper {
               AND nickname LIKE CONCAT('%', #{nickname}, '%')
             </if>
             <if test='phone != null and phone != ""'>
-              AND phone = #{phone}
+              AND (phone_hash = #{phoneHash} OR (phone_hash IS NULL AND phone = #{phone}))
             </if>
             <if test='status != null'>AND status = #{status}</if>
             <if test='registerStartTime != null'>AND register_time &gt;= #{registerStartTime}</if>
@@ -36,7 +36,7 @@ public interface UserManageMapper {
               AND nickname LIKE CONCAT('%', #{nickname}, '%')
             </if>
             <if test='phone != null and phone != ""'>
-              AND phone = #{phone}
+              AND (phone_hash = #{phoneHash} OR (phone_hash IS NULL AND phone = #{phone}))
             </if>
             <if test='status != null'>AND status = #{status}</if>
             <if test='registerStartTime != null'>AND register_time &gt;= #{registerStartTime}</if>

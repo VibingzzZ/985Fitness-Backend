@@ -3,12 +3,14 @@ package com.fitnessuser.controller.Client;
 import com.fitness985.fitnesscommon.result.Result;
 import com.fitness985.fitnesssecurity.SecurityUtils;
 import com.fitnessuser.dto.BindPhoneReq;
+import com.fitnessuser.dto.CancellationReq;
 import com.fitnessuser.dto.PasswordLoginReq;
 import com.fitnessuser.dto.PasswordRegisterReq;
 import com.fitnessuser.dto.UpdateUserProfileReq;
 import com.fitnessuser.dto.WechatLoginReq;
 import com.fitnessuser.service.ClientService;
 import com.fitnessuser.vo.BindPhoneResp;
+import com.fitnessuser.vo.CancellationResp;
 import com.fitnessuser.vo.LoginResp;
 import com.fitnessuser.vo.StoredValueBalanceResp;
 import com.fitnessuser.vo.UserInfoResp;
@@ -29,16 +31,25 @@ public class ClientController {
         this.clientService = clientService;
     }
 
+    /**
+     * 微信登录
+     */
     @PostMapping("/auth/wechat-login")
     public Result<LoginResp> wechatLogin(@Valid @RequestBody WechatLoginReq request) {
         return Result.success(clientService.wechatLogin(request));
     }
 
+    /**
+     * 获取用户信息
+     */
     @GetMapping("/profile")
     public Result<UserInfoResp> getUserInfo() {
         return Result.success(clientService.getUserInfo(SecurityUtils.currentUserId()));
     }
 
+    /**
+     * 更新用户信息
+     */
     @PatchMapping("/profile")
     public Result<UserInfoResp> updateUserInfo(
             @Valid @RequestBody UpdateUserProfileReq request) {
@@ -46,14 +57,30 @@ public class ClientController {
                 clientService.updateUserInfo(SecurityUtils.currentUserId(), request));
     }
 
+    /**
+     * 获取储值余额
+     */
     @GetMapping({"/stored-value/balance", "/balance"})
     public Result<StoredValueBalanceResp> getUserBalance() {
         return Result.success(clientService.getUserBalance(SecurityUtils.currentUserId()));
     }
 
+    /**
+     * 绑定手机号
+     */
     @PostMapping("/phone")
     public Result<BindPhoneResp> bindPhone(@Valid @RequestBody BindPhoneReq request) {
         return Result.success(clientService.bindPhone(SecurityUtils.currentUserId(), request));
+    }
+
+    /**
+     * 申请注销
+     */
+    @PostMapping("/profile/cancellation")
+    public Result<CancellationResp> requestCancellation(
+            @Valid @RequestBody CancellationReq request) {
+        return Result.success(
+                clientService.requestCancellation(SecurityUtils.currentUserId(), request));
     }
 
     /**
@@ -71,4 +98,10 @@ public class ClientController {
     public Result<LoginResp> passwordRegister(@Valid @RequestBody PasswordRegisterReq request) {
         return Result.success(clientService.passwordRegister(request));
     }
+
+    /**
+     * 刷新登录令牌
+     * @param request
+     * @return
+     */
 }

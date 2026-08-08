@@ -31,6 +31,8 @@ public class User {
      */
     private String phone;
 
+    private String phoneHash;
+
     /**
      * BCrypt密码摘要（微信用户为空，临时密码登录方案）。
      */
@@ -57,6 +59,12 @@ public class User {
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;
+
+    private String cancellationReason;
+
+    private LocalDateTime cancellationRequestedAt;
+
+    private LocalDateTime scheduledDeletionAt;
 
     @TableLogic
     private Integer deleted;
