@@ -70,13 +70,11 @@ class ClientServiceImplTest {
         });
         when(clientMapper.findActiveCards(1001L)).thenReturn(List.of());
         when(jwtTokenService.createAccessToken(any())).thenReturn("access-token");
-        when(jwtTokenService.createRefreshToken(any())).thenReturn("refresh-token");
         when(jwtTokenService.getAccessTokenExpirationSeconds()).thenReturn(7200L);
 
         LoginResp response = service.wechatLogin(request);
 
         assertThat(response.getAccessToken()).isEqualTo("access-token");
-        assertThat(response.getRefreshToken()).isEqualTo("refresh-token");
         assertThat(response.getUser().getUserId()).isEqualTo(1001L);
         assertThat(response.getUser().getNickname()).isEqualTo("新用户");
         verify(clientMapper).insert(any(User.class));

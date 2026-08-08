@@ -98,4 +98,10 @@ public class ClientController {
     public Result<LoginResp> passwordRegister(@Valid @RequestBody PasswordRegisterReq request) {
         return Result.success(clientService.passwordRegister(request));
     }
+
+    /**
+     * 刷新登录令牌
+     * @param request
+     * @return
+     */
 }

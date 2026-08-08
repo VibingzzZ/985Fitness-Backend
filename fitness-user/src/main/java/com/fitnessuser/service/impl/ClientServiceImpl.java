@@ -235,7 +235,6 @@ public class ClientServiceImpl implements ClientService {
         LoginPrincipal principal = new LoginPrincipal(user.getId(), user.getNickname(), Set.of("USER"));
         return LoginResp.builder()
                 .accessToken(jwtTokenService.createAccessToken(principal))
-                .refreshToken(jwtTokenService.createRefreshToken(principal))
                 .tokenType("Bearer")
                 .expiresIn(jwtTokenService.getAccessTokenExpirationSeconds())
                 .user(toUserInfo(user))
